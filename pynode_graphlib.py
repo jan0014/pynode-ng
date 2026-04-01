@@ -106,8 +106,12 @@ class Node:
         return [e._source if e._target is self else e._target for e in self._incident_edges]
     def predecessor_nodes(self):
         return [e._source if e._target is self else e._target for e in self.incoming_edges()]
+    def incoming_nodes(self):
+        return self.predecessor_nodes()
     def successor_nodes(self):
         return [e._source if e._target is self else e._target for e in self.outgoing_edges()]
+    def outgoing_nodes(self):
+        return self.successor_nodes()
 
     def degree(self): return len(self._incident_edges)
     def indegree(self): return len(self.incoming_edges())
@@ -410,8 +414,15 @@ class Graph:
         original_target = e._target
         e._source = graph.node(e._source)
         e._target = graph.node(e._target)
-        if e._source is None: raise Exception("Node '" + str(original_source) + "' doesn't exist.")
-        if e._target is None: raise Exception("Node '" + str(original_target) + "' doesn't exist.")
+        #if e._source is None: raise Exception("Node '" + str(original_source) + "' doesn't exist.")
+        #if e._target is None: raise Exception("Node '" + str(original_target) + "' doesn't exist.")
+
+        ## replicate edgy behaviour of creating nodes if they dont exist
+        if e._source is None:
+            e._source = self.add_node(original_source)
+        if e._target is None:
+            e._target = self.add_node(original_target)
+        
         e._source._incident_edges.append(e)
         e._target._incident_edges.append(e)
         self._edges.append(e)
